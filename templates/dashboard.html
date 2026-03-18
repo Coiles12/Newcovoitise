@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="text-center">
+    <h2 class="text-3xl font-bold mb-6 text-left animate__animated animate__fadeIn">Salut <span class="text-indigo-400">{{ user.pseudo }}</span> !</h2>
+
+    <div class="md:grid md:grid-cols-12 md:gap-8 text-left">
+        <div class="md:col-span-5 flex flex-col mb-8 md:mb-0">
+            <div id="progWidget" onclick="toggleMode()" data-week="{{ prog_semaine }}" data-year="{{ prog_annee }}" class="bg-white dark:bg-gray-800 p-1 rounded-3xl mb-6 shadow-md dark:shadow-lg cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-indigo-500/50 transition-all duration-300 group relative animate__animated animate__zoomIn">
+                <div class="bg-gray-50 dark:bg-gray-900 p-5 pb-6 rounded-[20px] relative z-10 overflow-hidden h-full">
+                    <div id="progBarBg" class="absolute left-0 top-0 bottom-0 bg-indigo-100 dark:bg-indigo-900/40 transition-[width] duration-700 ease-out" style="width: {{ prog_semaine }}%"></div>
+                    <div class="relative z-20 flex justify-between items-center">
+                        <div class="text-left">
+                            <p id="progLabel" class="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest font-bold mb-1 transition-all">WEEK-END</p>
+                            <h3 id="progValue" class="text-4xl font-black text-gray-900 dark:text-white italic tracking-tighter transition-all">{{ prog_semaine }}%</h3>
+                        </div>
+                        <div id="progIcon" class="text-4xl bg-white dark:bg-gray-800 p-2 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm floating">⏳</div>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 z-20 bg-gray-200 dark:bg-gray-800 h-1.5">
+                        <div id="progBar" class="h-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-[width] duration-700" style="width: {{ prog_semaine }}%"></div>
+                    </div>
+                </div>
+            </div>
+            <a href="/book" class="group block w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white py-5 rounded-2xl font-bold text-xl shadow-md dark:shadow-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all duration-300 relative overflow-hidden animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                <div class="absolute inset-0 bg-indigo-500/5 group-hover:bg-indigo-500/10 transition"></div>
+                <span class="relative flex items-center justify-center gap-3"><span>📅</span> RÉSERVER UN TRAJET</span>
+            </a>
+            {% if user.pseudo == 'Gustave' %}
+            <div class="mt-6 border-t border-gray-200 dark:border-gray-800 pt-6">
+                <a href="/admin" class="flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-white uppercase tracking-widest text-xs font-bold p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition animate__animated animate__fadeInUp"><span>🔒</span> Accès Admin</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="md:col-span-7 flex flex-col">
+            <div class="flex items-center justify-center gap-3 mb-4 animate__animated animate__fadeIn" style="animation-delay: 0.2s;">
+                <h3 class="text-center font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-sm">Tes prochaines courses</h3>
+                <span class="text-[10px] bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-500 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 shadow-sm">{{ trajets|length }}</span>
+            </div>
+            <div class="flex flex-col md:flex-row md:flex-wrap justify-center gap-4">
+                {% for trajet in trajets %}
+                <div class="block bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-between items-center text-left hover:border-indigo-500 transition-all duration-300 group shadow-sm dark:shadow-md relative overflow-hidden animate__animated animate__fadeInUp w-full md:w-[calc(50%-0.5rem)] h-full" style="animation-delay: {{ loop.index0 * 0.1 + 0.3 }}s;">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 group-hover:bg-indigo-400 transition"></div>
+                    <a href="{{ url_for('view_ticket', ride_id=trajet.id) }}" class="flex-1 pl-3">
+                        <p class="font-bold text-gray-900 dark:text-white text-lg group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">{{ trajet.jour_str }}</p>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {% if trajet.type_trajet == 'Aller' %} <span class="mr-2">🌅 Matin</span> {% else %} <span class="mr-2">🌇 Soir</span> {% endif %}
+                            <span class="font-mono text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded text-xs border border-indigo-200 dark:border-indigo-500/20">{{ trajet.heure_trajet }}</span>
+                        </div>
+                    </a>
+                    <div class="flex flex-col items-end gap-2">
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="text-xs font-bold bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600">{{ trajet.seat }}</span>
+                            {% if 'DJ' in trajet.options %} <span class="text-[10px] text-yellow-600 dark:text-yellow-500 border border-yellow-300 dark:border-yellow-500/30 px-1 rounded bg-yellow-50 dark:bg-yellow-500/10">🎧 DJ</span> {% endif %}
+                        </div>
+                        <a href="/cancel_ride/{{ trajet.id }}" class="text-[10px] text-red-500 dark:text-red-400 border border-red-200 dark:border-red-500/30 px-2 py-1 rounded hover:bg-red-500 hover:text-white dark:hover:bg-red-500 transition">✕ Annuler</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="w-full p-8 text-center text-gray-500 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 animate__animated animate__fadeIn"><span class="text-4xl mb-2 opacity-50 block grayscale">😴</span><p class="text-sm">Pas de trajet prévu.</p></div>
+                {% endfor %}
+            </div>
+            <div class="mt-8 text-center animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+                <a href="/history" class="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition uppercase tracking-widest border-b border-transparent hover:border-indigo-600 dark:hover:border-indigo-400 pb-1">
+                    <span>📜</span> Voir mon historique complet
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="document.getElementById('ticketModal').classList.remove('hidden')" class="fixed bottom-6 right-6 bg-indigo-600 hover:bg-indigo-500 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl animate__animated animate__bounceIn z-50 border-2 border-indigo-400">💡</button>
+    <div id="ticketModal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/90 z-[70] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl p-6 border border-gray-200 dark:border-gray-700 shadow-2xl animate__animated animate__zoomIn">
+            <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-gray-900 dark:text-white text-lg">💡 Boîte à idées</h3><button onclick="document.getElementById('ticketModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">✕</button></div>
+            <form action="/submit_ticket" method="POST" class="space-y-4">
+                <div class="grid grid-cols-3 gap-2">
+                    <label class="cursor-pointer"><input type="radio" name="type" value="Bug" class="peer hidden" required><span class="block text-center py-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 peer-checked:bg-red-500 peer-checked:text-white transition">🐞 Bug</span></label>
+                    <label class="cursor-pointer"><input type="radio" name="type" value="Suggestion" class="peer hidden"><span class="block text-center py-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 peer-checked:bg-yellow-500 peer-checked:text-black transition">✨ Idée</span></label>
+                    <label class="cursor-pointer"><input type="radio" name="type" value="Autre" class="peer hidden"><span class="block text-center py-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 peer-checked:bg-blue-500 peer-checked:text-white transition">💬 Autre</span></label>
+                </div>
+                <textarea name="message" rows="4" placeholder="Dis-moi tout..." required class="w-full bg-gray-50 dark:bg-gray-900 rounded-xl p-3 text-gray-900 dark:text-white text-sm border border-gray-200 dark:border-gray-700 focus:border-indigo-500 outline-none"></textarea>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold text-white transition">Envoyer 📨</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    let mode='week';function toggleMode(){const bar=document.getElementById('progBar');const bgBar=document.getElementById('progBarBg');const label=document.getElementById('progLabel');const val=document.getElementById('progValue');const widget=document.getElementById('progWidget');const week=widget.getAttribute('data-week');const year=widget.getAttribute('data-year');if(mode==='week'){mode='year';label.innerText="ANNÉE SCOLAIRE";val.innerText=year+"%";bar.style.width=year+"%";bgBar.style.width=year+"%";bar.classList.remove('from-indigo-500','to-blue-500');bar.classList.add('from-purple-500','to-pink-500');bgBar.classList.remove('bg-indigo-100','dark:bg-indigo-900/40');bgBar.classList.add('bg-purple-100','dark:bg-purple-900/40');}else{mode='week';label.innerText="WEEK-END";val.innerText=week+"%";bar.style.width=week+"%";bgBar.style.width=week+"%";bar.classList.add('from-indigo-500','to-blue-500');bar.classList.remove('from-purple-500','to-pink-500');bgBar.classList.add('bg-indigo-100','dark:bg-indigo-900/40');bgBar.classList.remove('bg-purple-100','dark:bg-purple-900/40');}if(navigator.vibrate)navigator.vibrate(20);}
+</script>
+{% endblock %}

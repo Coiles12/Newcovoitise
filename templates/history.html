@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="animate__animated animate__fadeIn">
+
+    <div class="flex items-center justify-between mb-6">
+        <a href="/dashboard" class="bg-gray-800 p-3 rounded-xl border border-gray-700 hover:border-indigo-500 text-gray-400 hover:text-white transition">
+            ⬅
+        </a>
+        <h2 class="text-2xl font-bold text-white uppercase tracking-widest">Mon Historique</h2>
+        <div class="w-10"></div> </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for h in history %}
+        <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex justify-between items-center shadow-lg relative overflow-hidden group hover:border-indigo-500/50 transition-all duration-300 h-full">
+
+            <div class="absolute left-0 top-0 bottom-0 w-1.5
+                {% if h.statut == 'VALIDÉ' %} bg-green-500
+                {% elif h.statut == 'ANNULÉ' %} bg-red-500
+                {% else %} bg-gray-500 {% endif %}">
+            </div>
+
+            <div class="pl-4">
+                <p class="font-bold text-white text-lg flex items-center gap-2">
+                    {{ h.date_trajet.strftime('%d/%m') }}
+                    <span class="text-xs font-normal text-gray-500 uppercase border border-gray-600 px-1.5 py-0.5 rounded">
+                        {{ h.type_trajet }}
+                    </span>
+                </p>
+                <div class="text-sm text-gray-400 mt-1 flex items-center gap-3">
+                    <span>💺 {{ h.seat }}</span>
+                    <span class="text-yellow-500/80">{{ h.cout }} 🪙</span>
+                </div>
+            </div>
+
+            <div class="text-right">
+                {% if h.statut == 'VALIDÉ' %}
+                    <span class="bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                        Validé
+                    </span>
+                {% elif h.statut == 'ANNULÉ' %}
+                    <span class="bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                        Annulé
+                    </span>
+                {% else %}
+                    <span class="bg-gray-700 text-gray-400 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                        {{ h.statut }}
+                    </span>
+                {% endif %}
+            </div>
+
+        </div>
+        {% else %}
+        <div class="text-center py-12 opacity-50">
+            <div class="text-5xl mb-4 grayscale">📜</div>
+            <p class="text-gray-400">Aucun historique pour le moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if history %}
+    <div class="mt-8 grid grid-cols-2 gap-4">
+        <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700 text-center">
+            <span class="block text-2xl font-black text-indigo-400">{{ history|length }}</span>
+            <span class="text-[10px] text-gray-500 uppercase font-bold">Total Trajets</span>
+        </div>
+        <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700 text-center">
+            <span class="block text-2xl font-black text-yellow-400">
+                {{ history | selectattr("statut", "equalto", "VALIDÉ") | sum(attribute="cout") }}
+            </span>
+            <span class="text-[10px] text-gray-500 uppercase font-bold">Crédits dépensés</span>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

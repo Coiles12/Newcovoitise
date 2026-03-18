@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Covoitise</title>
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23818cf8'/%3E%3Cstop offset='1' stop-color='%23c084fc'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='100' height='100' fill='black'/%3E%3Ctext y='.9em' font-size='90' fill='white'%3E🚕%3C/text%3E%3C/mask%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grad)' mask='url(%23m)'/%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        arcade: {
+                            dark: '#0f172a',
+                            panel: '#1e293b',
+                            accent: '#6366f1',
+                            glow: '#818cf8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Mise à jour du style global pour correspondre à la nouvelle ambiance du logo */
+        html.dark body {
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 70%);
+        }
+        html:not(.dark) body {
+            background-color: #f8fafc;
+        }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
+        .floating { animation: float 5s ease-in-out infinite; will-change: transform; }
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(128,128,128,0.1); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
+
+        /* Classe glass ajoutée pour cohérence */
+        html.dark .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
+        html:not(.dark) .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
+    </style>
+    <script>
+        const uTheme = "{{ current_user.theme if current_user else 'auto' }}";
+        if (uTheme === 'dark' || (uTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</head>
+<body class="text-gray-800 dark:text-white font-sans antialiased min-h-screen selection:bg-indigo-500 selection:text-white transition-colors duration-300">
+
+    <div class="w-full max-w-md md:max-w-4xl lg:max-w-6xl mx-auto min-h-screen relative shadow-2xl md:border-x border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 transition-colors duration-300">
+
+        <div class="glass p-4 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 animate__animated animate__slideInDown transition-colors duration-300">
+
+            <a href="{{ url_for('dashboard') if current_user else '/' }}" class="group relative flex items-center gap-3 px-3 py-2 rounded-2xl border border-gray-200 dark:border-indigo-500/30 bg-white dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 shadow-sm dark:shadow-[0_0_15px_rgba(79,70,229,0.15)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(79,70,229,0.3)]">
+                <span class="text-2xl bg-clip-text text-transparent bg-gradient-to-tr from-indigo-400 to-purple-400 drop-shadow-md pb-1">
+                    🚕
+                </span>
+                <h1 class="font-black text-xl tracking-wide leading-none text-gray-900 dark:text-white transition-colors">
+                    COVOIT<span class="text-indigo-400">ISE</span>
+                </h1>
+            </a>
+            {% if current_user %}
+            <div class="flex items-center gap-3">
+                <div class="bg-gray-100 dark:bg-gray-800/80 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 flex items-center gap-2 shadow-inner transition-colors">
+                    <span class="text-yellow-500 dark:text-yellow-400 font-bold text-sm">{{ current_user.credits }}</span><span class="text-xs">🪙</span>
+                </div>
+                <button onclick="document.getElementById('globalSettingsModal').classList.remove('hidden')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 p-2 rounded-xl transition-all border border-gray-200 dark:border-gray-700">
+                    ⚙️
+                </button>
+                <a href="/logout" class="bg-red-50 dark:bg-red-500/10 hover:bg-red-500 text-red-500 dark:text-red-400 hover:text-white p-2 rounded-xl transition-all border border-red-200 dark:border-red-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div id="flashMessage" class="fixed top-24 left-4 right-4 z-[60] mx-auto bg-gray-800 text-white p-4 rounded-xl border-l-4 border-indigo-500 shadow-2xl flex items-center justify-between gap-3 animate__animated animate__fadeInDown">
+                    <span class="font-bold text-sm flex-1">{{ messages[0] }}</span><button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white">✕</button>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="p-5 pb-24">
+            {% block content %}{% endblock %}
+        </div>
+        
+        {% if current_user %}
+        <div id="globalSettingsModal" class="hidden fixed inset-0 bg-black/40 dark:bg-black/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl p-6 border border-gray-200 dark:border-gray-700 shadow-2xl animate__animated animate__zoomIn transition-colors">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-gray-900 dark:text-white text-xl">⚙️ Paramètres</h3>
+                    <button onclick="document.getElementById('globalSettingsModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-800 dark:hover:text-white text-xl">✕</button>
+                </div>
+                <form action="/update_settings" method="POST" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Apparence</label>
+                        <select name="theme" class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-indigo-500 outline-none">
+                            <option value="auto" {% if current_user.theme == 'auto' %}selected{% endif %}>📱 Automatique (Appareil)</option>
+                            <option value="light" {% if current_user.theme == 'light' %}selected{% endif %}>☀️ Mode Clair</option>
+                            <option value="dark" {% if current_user.theme == 'dark' %}selected{% endif %}>🌙 Mode Sombre</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Arrêt par défaut</label>
+                        <select name="default_arret" class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-indigo-500 outline-none text-sm">
+                            <option value="">-- Choisir un arrêt --</option>
+                            {% for a in TOUS_LES_ARRETS %}
+                            <option value="{{ a }}" {% if current_user.default_arret == a %}selected{% endif %}>{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg transition transform active:scale-95">
+                        Enregistrer
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const flashMsg=document.getElementById('flashMessage');
+        if(flashMsg) setTimeout(()=>{
+            flashMsg.classList.add('animate__fadeOutUp');
+            setTimeout(()=>flashMsg.remove(),500);
+        },3500);
+    </script>
+</body>
+</html>

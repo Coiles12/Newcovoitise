@@ -1,0 +1,8 @@
+# Fichiers à ignorer
+.env
+__pycache__/
+*.db
+covoit.db
+cache_edt.json
+users.json
+demand_coefs.json

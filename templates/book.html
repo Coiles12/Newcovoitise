@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block content %}
+<form action="/book" method="POST" id="bookingForm" class="flex flex-col gap-8 md:gap-10">
+    
+    <div class="md:grid md:grid-cols-12 md:gap-8">
+        <div class="md:col-span-5 flex flex-col justify-between space-y-6">
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-xl relative overflow-hidden animate__animated animate__fadeInUp transition-colors">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-3xl"></div>
+                <div class="flex justify-between items-start mb-4 relative z-10">
+                    <h3 class="font-bold text-indigo-600 dark:text-indigo-300 uppercase tracking-widest text-sm flex items-center gap-2">
+                        <span class="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 p-1 rounded text-xs">1</span> Horaire
+                    </h3>
+                    <div class="text-right">
+                        <p id="heureDisplay" class="text-3xl font-black text-gray-900 dark:text-white transition-colors">--:--</p>
+                        <div id="loadingSpinner" class="hidden text-[10px] text-indigo-600 dark:text-indigo-400 animate-pulse">Calcul...</div>
+                    </div>
+                </div>
+                <div class="space-y-4 relative z-10">
+                    <div class="relative">
+                        <select name="date_valeur" id="dateInput" class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 font-bold appearance-none outline-none focus:border-indigo-500 transition shadow-sm">
+                            {% for j in jours %}
+                            <option value="{{ j.valeur }}">{{ j.affichage }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="absolute right-4 top-3.5 pointer-events-none text-gray-400 dark:text-gray-500">▼</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="sens" value="aller" class="peer hidden sensInput" required>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl text-center border border-gray-200 dark:border-gray-700 peer-checked:bg-indigo-600 peer-checked:border-indigo-400 peer-checked:text-white transition hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm text-gray-700 dark:text-gray-300">
+                                <span class="text-xl block mb-1">🌅</span>
+                                <span class="font-bold text-xs uppercase">Matin</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="sens" value="retour" class="peer hidden sensInput">
+                            <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl text-center border border-gray-200 dark:border-gray-700 peer-checked:bg-indigo-600 peer-checked:border-indigo-400 peer-checked:text-white transition hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm text-gray-700 dark:text-gray-300">
+                                <span class="text-xl block mb-1">🌇</span>
+                                <span class="font-bold text-xs uppercase">Soir</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg animate__animated animate__fadeInUp hidden md:block transition-colors" style="animation-delay: 0.2s;">
+                <h3 class="font-bold text-indigo-600 dark:text-indigo-300 uppercase tracking-widest text-sm mb-3 flex items-center gap-2">
+                    <span class="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 p-1 rounded text-xs">3</span> Détails
+                </h3>
+                <div class="space-y-3">
+                    <select name="arret" required class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 outline-none text-sm focus:border-indigo-500 transition shadow-sm">
+                        {% for arret in arrets %}
+                        <option value="{{ arret }}" {% if current_user.default_arret == arret %}selected{% endif %}>{{ arret }}</option>
+                        {% endfor %}
+                    </select>
+                    <label id="djContainer" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-indigo-500 transition group shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg group-hover:scale-110 transition">🎧</span>
+                            <span class="font-bold text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Option DJ</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="djPrice" class="text-yellow-600 dark:text-yellow-500 text-xs font-bold">+5 🪙</span>
+                            <input type="checkbox" name="dj" id="djCheckbox" onchange="calculerTotal()" class="w-5 h-5 accent-indigo-500 rounded">
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-7 flex flex-col justify-center text-center animate__animated animate__fadeInUp mt-6 md:mt-0" style="animation-delay: 0.1s;">
+            <h3 class="font-bold text-gray-400 dark:text-gray-500 text-xs uppercase tracking-widest mb-2">2. Choisis ta place</h3>
+            
+            <div class="relative w-full max-w-[20rem] md:max-w-sm lg:max-w-md mx-auto h-[25rem] md:h-[30rem]">
+                <svg viewBox="0 0 240 380" class="w-full h-full">
+                    <defs>
+                        <linearGradient id="bodyTheme" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#312e81" class="stop-color-light transition-colors"/> <stop offset="100%" stop-color="#0f172a" class="stop-color-dark transition-colors"/> 
+                        </linearGradient>
+                    </defs>
+
+                    <style>
+                        .seat { fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 2px; transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease; cursor: pointer; }
+                        .seat:hover:not(.occupied) { stroke: #818cf8; fill: #e0e7ff; filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4)); }
+                        .seat.selected { fill: #4f46e5; stroke: #a5b4fc; filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.6)); }
+                        .seat.occupied { fill: #94a3b8; stroke: #64748b; opacity: 0.5; cursor: not-allowed; }
+                        .seat-txt { fill: #64748b; font-size: 11px; font-weight: 800; text-anchor: middle; pointer-events: none; }
+                        .selected + .seat-txt { fill: white; }
+                        .driver-seat { fill: #334155; stroke: #1e293b; stroke-width: 2; pointer-events: none; }
+                        
+                        .dark .seat { fill: #312e81; stroke: #4f46e5; }
+                        .dark .seat:hover:not(.occupied) { stroke: #818cf8; fill: #4338ca; filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.6)); }
+                        .dark .seat.occupied { fill: #020617; stroke: #1e1b4b; }
+                        .dark .seat-txt { fill: #a5b4fc; }
+                        .dark .selected + .seat-txt { fill: white; }
+                        .dark .driver-seat { fill: #1e1b4b; stroke: #312e81; }
+
+                        .car-body { fill: #ffffff; stroke: #e2e8f0; }
+                        .dark .car-body { fill: url(#bodyTheme); stroke: #818cf8; }
+                        .car-window { fill: #f8fafc; stroke: #cbd5e1; }
+                        .dark .car-window { fill: #0f0a2e; stroke: #3730a3; }
+                        .car-dash { fill: #e2e8f0; opacity: 0.8; }
+                        .dark .car-dash { fill: #2e2a5b; opacity: 0.4; }
+                    </style>
+
+                    <path d="M 45 125 L 15 130 L 15 150 L 45 145 Z" fill="#cbd5e1" class="dark:fill-[#3730a3]" stroke="#94a3b8" class="dark:stroke-[#6366f1]" stroke-width="2"/>
+                    <path d="M 195 125 L 225 130 L 225 150 L 195 145 Z" fill="#cbd5e1" class="dark:fill-[#3730a3]" stroke="#94a3b8" class="dark:stroke-[#6366f1]" stroke-width="2"/>
+
+                    <path d="M 40 120 L 45 80 Q 45 60, 75 60 L 165 60 Q 195 60, 195 80 L 200 120 L 200 280 Q 200 320, 170 320 L 70 320 Q 40 320, 40 280 Z" class="car-body" stroke-width="3"/>
+                    <path d="M 55 100 Q 120 90, 185 100 L 190 135 Q 120 130, 50 135 Z" class="car-window"/>
+                    <path d="M 50 280 Q 120 285, 190 280 L 185 300 Q 120 305, 55 300 Z" class="car-window"/>
+                    <rect x="50" y="140" width="140" height="135" rx="10" class="car-dash" stroke="none"/>
+                    
+                    <rect x="60" y="155" width="45" height="45" rx="14" class="driver-seat"/>
+                    <text x="82.5" y="182" class="seat-txt" fill="#ef4444" style="font-size:9px; opacity:0.7">COND</text>
+                    <g onclick="selectSeat('RF')"><rect id="seat-RF" x="135" y="155" width="45" height="45" rx="14" class="seat"/><text x="157.5" y="182" class="seat-txt">RF</text></g>
+                    <g onclick="selectSeat('LB')"><rect id="seat-LB" x="50" y="225" width="40" height="40" rx="14" class="seat"/><text x="70" y="250" class="seat-txt">LB</text></g>
+                    <g onclick="selectSeat('MB')"><rect id="seat-MB" x="100" y="225" width="40" height="40" rx="14" class="seat"/><text x="120" y="250" class="seat-txt">MB</text></g>
+                    <g onclick="selectSeat('RB')"><rect id="seat-RB" x="150" y="225" width="40" height="40" rx="14" class="seat"/><text x="170" y="250" class="seat-txt">RB</text></g>
+                </svg>
+            </div>
+            <input type="hidden" name="seat" id="selected_seat_input" required>
+        </div>
+
+        <!-- Version mobile des détails qui s'affiche sous le schéma si petit écran -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg md:hidden mt-4 transition-colors">
+            <h3 class="font-bold text-indigo-600 dark:text-indigo-300 uppercase tracking-widest text-sm mb-3 flex items-center gap-2">
+                <span class="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 p-1 rounded text-xs">3</span> Détails
+            </h3>
+            <div class="space-y-3">
+                <select name="arret" required class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 outline-none text-sm shadow-sm focus:border-indigo-500">
+                    {% for arret in arrets %}
+                    <option value="{{ arret }}" {% if current_user.default_arret == arret %}selected{% endif %}>{{ arret }}</option>
+                    {% endfor %}
+                </select>
+                <label class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl cursor-pointer border border-gray-200 dark:border-gray-700 shadow-sm hover:border-indigo-500 transition group">
+                    <div class="flex items-center gap-2"><span class="text-lg group-hover:scale-110 transition">🎧</span><span class="font-bold text-sm text-gray-700 dark:text-gray-300">Option DJ</span></div>
+                    <div class="flex items-center gap-2"><span class="text-yellow-600 dark:text-yellow-500 text-xs font-bold">+5 🪙</span><input type="checkbox" name="dj" onchange="document.getElementById('djCheckbox').checked = this.checked; calculerTotal();" class="w-5 h-5 accent-indigo-500 rounded"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white py-5 rounded-2xl font-bold text-xl shadow-lg border border-indigo-500/30 transform hover:-translate-y-1 active:scale-95 transition-all duration-300 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+        PAYER <span id="totalPriceDisplay">--</span> 🪙
+    </button>
+</form>
+
+<script>
+    let currentBasePrice = 10;
+    
+    function calculerTotal() {
+        const seat = document.getElementById('selected_seat_input').value;
+        if(!seat) {
+            document.getElementById('totalPriceDisplay').innerText = "--";
+            return;
+        }
+
+        let total = currentBasePrice; // Récupéré de l'API
+
+        // Siège Passager (RF) : +10
+        if(seat === 'RF') total += 10; 
+
+        // Option DJ : +5
+        const djCheckbox = document.getElementById('djCheckbox');
+        if(djCheckbox && !djCheckbox.disabled && djCheckbox.checked) total += 5;
+        
+        document.getElementById('totalPriceDisplay').innerText = Math.round(total);
+    }
+
+    function selectSeat(id) {
+        const el = document.getElementById('seat-' + id);
+        if (el.classList.contains('occupied')) return;
+        
+        document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('selected_seat_input').value = id;
+        
+        if (navigator.vibrate) navigator.vibrate(50);
+        calculerTotal();
+    }
+
+    const dInput = document.getElementById('dateInput');
+    const sInputs = document.querySelectorAll('.sensInput');
+    const hDisplay = document.getElementById('heureDisplay');
+
+    function updateHoraire() {
+        let sVal = null;
+        sInputs.forEach(i => { if(i.checked) sVal = i.value; });
+        
+        if(!dInput.value || !sVal) return;
+        
+        // --- MODIF ICI : On sauvegarde le siège actuel ---
+        const previousSeat = document.getElementById('selected_seat_input').value;
+
+        hDisplay.classList.add('opacity-50');
+        document.getElementById('loadingSpinner').classList.remove('hidden');
+        
+        // Reset visuel
+        document.querySelectorAll('.seat').forEach(s => {
+            s.classList.remove('occupied', 'selected');
+        });
+        document.getElementById('selected_seat_input').value = "";
+        
+        const djCheckbox = document.getElementById('djCheckbox');
+        const djContainer = document.getElementById('djContainer');
+        const djPrice = document.getElementById('djPrice');
+        
+        djCheckbox.checked = false;
+        document.getElementById('totalPriceDisplay').innerText = "--";
+        
+        fetch('/api/check_horaire', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({date: dInput.value, sens: sVal})
+        })
+        .then(r => r.json())
+        .then(d => {
+            hDisplay.innerText = d.heure;
+            hDisplay.className = (d.heure.includes("Pas") || d.heure.includes("Erreur")) 
+                ? "text-3xl font-black text-red-400" 
+                : "text-3xl font-black text-gray-900 dark:text-white transition-colors";
+            
+            // Mise à jour des places occupées
+            if(d.occupied) {
+                d.occupied.forEach(id => {
+                    const seatEl = document.getElementById('seat-' + id);
+                    if(seatEl) seatEl.classList.add('occupied');
+                });
+            }
+
+            // --- MODIF ICI : Restauration du siège si toujours libre ---
+            if (previousSeat && (!d.occupied || !d.occupied.includes(previousSeat))) {
+                const seatEl = document.getElementById('seat-' + previousSeat);
+                if (seatEl) {
+                    seatEl.classList.add('selected');
+                    document.getElementById('selected_seat_input').value = previousSeat;
+                }
+            }
+
+            // Mise à jour DJ
+            if (d.dj_taken) {
+                djCheckbox.disabled = true;
+                djContainer.classList.add('opacity-50', 'grayscale', 'cursor-not-allowed');
+                djPrice.innerText = "PRIS";
+            } else {
+                djCheckbox.disabled = false;
+                djContainer.classList.remove('opacity-50', 'grayscale', 'cursor-not-allowed');
+                djPrice.innerText = "+5 🪙";
+            }
+            
+            // Mise à jour prix de base (incluant coef et temps)
+            currentBasePrice = d.base_price;
+            
+            // --- MODIF ICI : On recalcule le total ---
+            calculerTotal();
+        })
+        .finally(() => {
+            document.getElementById('loadingSpinner').classList.add('hidden');
+            hDisplay.classList.remove('opacity-50');
+        });
+    }
+
+    dInput.addEventListener('change', updateHoraire);
+    sInputs.forEach(i => i.addEventListener('change', updateHoraire));
+    updateHoraire();
+</script>
+{% endblock %}

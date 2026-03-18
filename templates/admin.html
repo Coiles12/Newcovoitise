@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<div class="pb-10">
+    <h2 class="text-3xl font-bold text-center mb-8 text-indigo-400 animate__animated animate__fadeIn">🕵️‍♂️ Espace Admin</h2>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-600 shadow-xl animate__animated animate__fadeInUp transition-colors">
+            <h3 class="font-bold text-xl mb-4 text-gray-900 dark:text-white flex items-center gap-2">📸 Scanner</h3>
+            <div id="reader" width="600px" class="rounded-xl overflow-hidden mb-4 hidden bg-gray-100 dark:bg-black border border-gray-200 dark:border-gray-800"></div>
+            <div class="text-center space-y-2">
+                <button onclick="startScanner()" id="startScanBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition w-full">Lancer le Scanner</button>
+                <div id="scanResult" class="hidden p-4 rounded-xl font-bold text-lg animate-pulse"></div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-600 shadow-xl animate__animated animate__fadeInUp transition-colors" style="animation-delay: 0.1s;">
+            <h3 class="font-bold text-xl mb-4 text-gray-900 dark:text-white flex items-center gap-2">📈 Gestion Demande (Coefs)</h3>
+            <form action="/admin/update_demand" method="POST" class="space-y-4">
+                <div class="h-48 overflow-y-auto custom-scrollbar pr-2 space-y-2">
+                    {% for i in range(7) %}
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700">
+                        <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase mb-2">{{ days_names[i] }}</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-gray-500 uppercase">Matin</label>
+                                <input type="number" step="0.05" name="coef_{{i}}_Aller" value="{{ demand_coefs.get(i|string ~ '_Aller', 1.0) }}" class="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-center text-sm rounded border border-gray-300 dark:border-gray-600 p-1 focus:border-indigo-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 uppercase">Soir</label>
+                                <input type="number" step="0.05" name="coef_{{i}}_Retour" value="{{ demand_coefs.get(i|string ~ '_Retour', 1.0) }}" class="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-center text-sm rounded border border-gray-300 dark:border-gray-600 p-1 focus:border-indigo-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-xl font-bold text-white text-sm transition">Enregistrer les Coefs 💾</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-600 mb-8 shadow-xl animate__animated animate__fadeInUp transition-colors" style="animation-delay: 0.1s;">
+        <h3 class="font-bold text-xl mb-4 text-gray-900 dark:text-white">➕ Nouveau passager</h3>
+        <form action="/admin" method="POST" class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+                <input type="text" name="new_pseudo" placeholder="Prénom" required class="w-full bg-gray-50 dark:bg-gray-900 rounded-xl p-3 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 outline-none focus:border-indigo-500 shadow-sm">
+                <input type="text" name="new_password" placeholder="Mot de passe" class="w-full bg-gray-50 dark:bg-gray-900 rounded-xl p-3 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 outline-none focus:border-indigo-500 shadow-sm">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold transition">Créer</button>
+        </form>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-yellow-400 dark:border-yellow-500/30 mb-8 shadow-xl animate__animated animate__fadeInUp transition-colors" style="animation-delay: 0.2s;">
+        <h3 class="font-bold text-xl mb-4 text-yellow-600 dark:text-yellow-400">⏳ À Valider (Scanner ou Manuel)</h3>
+        <div class="space-y-3">
+            {% for r in rides_pending %}
+            <div onclick="openRideModal('{{ r.pseudo_passager|escape }}', '{{ r.jour_str|escape }}', '{{ r.heure_trajet|escape }}', '{{ r.nom_arret|escape }}', '{{ r.seat|escape }}', '{{ r.options|escape }}')" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:border-indigo-500 cursor-pointer group transition-colors">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline gap-2 mb-1">
+                        <span class="font-bold text-gray-900 dark:text-white truncate text-sm">{{ r.pseudo_passager }}</span>
+                        <span class="text-[11px] text-gray-500 dark:text-gray-400 font-mono">{{ r.jour_str.split(' ')[-1] if ' ' in r.jour_str else r.jour_str }} • {{ r.heure_trajet }}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded text-[10px] font-bold shadow-sm">💺 {{ r.seat }}</span>
+                        {% if 'DJ' in r.options %}
+                        <span class="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 rounded text-[10px] font-bold shadow-sm">🎧 DJ</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="ml-3 shrink-0">
+                    <a href="/admin/validate_manual/{{ r.id }}" onclick="event.stopPropagation()" class="inline-block bg-indigo-600 px-3 py-2 rounded-xl text-white font-bold text-xs hover:bg-indigo-500 transition shadow">Valider ✔</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="py-4 text-center italic text-gray-500 text-sm">Rien à valider.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-200 dark:border-gray-600 mb-8 shadow-xl animate__animated animate__fadeInUp transition-colors" style="animation-delay: 0.25s;">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-xl text-green-600 dark:text-green-400">✅ Historique Validé</h3>
+            <button onclick="document.getElementById('historiqueList').classList.toggle('hidden')" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-xs font-bold py-1 px-3 rounded-lg transition shadow-sm">Afficher / Masquer</button>
+        </div>
+        <div id="historiqueList" class="hidden space-y-3 pt-2">
+            {% for r in rides_validated %}
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm opacity-75 hover:opacity-100 transition-colors">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline gap-2 mb-1">
+                        <span class="font-bold text-gray-900 dark:text-white truncate text-sm">{{ r.pseudo_passager }}</span>
+                        <span class="text-[11px] text-gray-500 dark:text-gray-400 font-mono">{{ r.jour_str.split(' ')[-1] if ' ' in r.jour_str else r.jour_str }} • {{ r.heure_trajet }}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded text-[10px] font-bold shadow-sm">💺 {{ r.seat }}</span>
+                        {% if 'DJ' in r.options %}
+                        <span class="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 rounded text-[10px] font-bold shadow-sm">🎧 DJ</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="ml-3 shrink-0">
+                    <span class="inline-block text-green-600 dark:text-green-400 font-bold border border-green-300 dark:border-green-500/30 px-2 py-1 rounded bg-green-50 dark:bg-green-500/10 text-[10px] shadow-sm">OK ✔</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="py-4 text-center italic text-gray-500 text-sm">Aucun historique.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-600 mb-8 shadow-xl animate__animated animate__fadeInUp transition-colors" style="animation-delay: 0.3s;">
+        <h3 class="font-bold text-xl mb-4 text-gray-900 dark:text-white">📬 Messages <span class="bg-indigo-600 text-xs text-white px-2 py-1 rounded-full align-middle ml-2">{{ tickets|length }}</span></h3>
+        <div class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+            {% for ticket in tickets %}
+            <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-between items-start shadow-sm"><div><span class="font-bold text-gray-900 dark:text-white text-sm block">{{ ticket.pseudo }}</span><p class="text-xs text-gray-600 dark:text-gray-300 italic">"{{ ticket.message }}"</p></div><a href="/admin/delete_ticket/{{ ticket.id }}" class="text-gray-400 hover:text-red-500">🗑</a></div>
+            {% else %}
+            <p class="text-center text-gray-500 italic text-xs">Rien ici.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="text-center mb-6"><a href="/admin/force_update" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-xl shadow-lg transition inline-block text-sm">🔄 Update Pronote</a></div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-600 shadow-xl overflow-hidden animate__animated animate__fadeInUp transition-colors" style="animation-delay: 0.4s;">
+            <h3 class="font-bold text-xl mb-4 text-gray-900 dark:text-white">📅 Horaires</h3>
+            <div class="h-56 overflow-y-auto custom-scrollbar pr-2">
+                <div class="space-y-3">
+                    {% for date, infos in edt.items() %}
+                    <div onclick="openEditModal('{{ date }}', '{{ infos.aller }}', '{{ infos.retour }}')" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:border-indigo-500 cursor-pointer transition-colors">
+                        <span class="font-mono text-gray-900 dark:text-white text-sm font-bold">{{ date[8:10] }}/{{ date[5:7] }}</span>
+                        <div class="flex gap-3 text-sm">
+                            <span class="text-green-600 dark:text-green-400 font-bold w-12 text-right">🌅 {{ infos.aller }}</span>
+                            <span class="text-red-600 dark:text-red-400 font-bold w-12 text-right">🌇 {{ infos.retour }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-600 shadow-xl animate__animated animate__fadeInUp transition-colors" style="animation-delay: 0.5s;">
+            <h3 class="font-bold text-xl mb-4 text-gray-900 dark:text-white">👥 Passagers</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for u in users %}
+                <div class="bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center gap-2 shadow-sm"><span class="font-bold text-gray-900 dark:text-white text-xs">{{ u.pseudo }}</span><span class="text-yellow-600 dark:text-yellow-400 text-xs font-bold bg-white dark:bg-gray-800 px-2 py-0.5 rounded shadow-sm">{{ u.credits }}</span></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <a href="/dashboard" class="block text-center text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-white text-sm font-bold pb-8 transition">Retour au site</a>
+
+    <div id="editModal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/80 z-[70] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl p-6 border border-gray-200 dark:border-gray-600 shadow-2xl animate__animated animate__zoomIn">
+            <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-gray-900 dark:text-white text-lg">Modifier le <span id="modalDateDisplay" class="text-indigo-600 dark:text-indigo-400 font-mono"></span></h3><button onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">✕</button></div>
+            <form action="/admin/edit_horaire" method="POST" class="space-y-6">
+                <input type="hidden" name="date_modif" id="modalDateInput">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2"><label class="block text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Matin</label><input type="text" name="aller" id="modalAller" class="w-full bg-gray-50 dark:bg-gray-900 rounded-xl p-3 text-center text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus:border-indigo-500 font-mono font-bold shadow-sm"><button type="button" onclick="setNoService('aller')" class="w-full bg-red-50 dark:bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 dark:text-red-400 text-[10px] font-bold py-2 rounded-lg border border-red-200 dark:border-red-500/20 transition">🚫 Pas de service</button></div>
+                    <div class="space-y-2"><label class="block text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Soir</label><input type="text" name="retour" id="modalRetour" class="w-full bg-gray-50 dark:bg-gray-900 rounded-xl p-3 text-center text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus:border-indigo-500 font-mono font-bold shadow-sm"><button type="button" onclick="setNoService('retour')" class="w-full bg-red-50 dark:bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 dark:text-red-400 text-[10px] font-bold py-2 rounded-lg border border-red-200 dark:border-red-500/20 transition">🚫 Pas de service</button></div>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold text-white shadow-lg transition transform active:scale-95">Valider</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="rideDetailsModal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/90 z-[70] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl p-6 border border-gray-200 dark:border-gray-600 shadow-2xl animate__animated animate__zoomIn">
+            <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-gray-900 dark:text-white text-lg">🔍 Détails du trajet</h3><button onclick="document.getElementById('rideDetailsModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">✕</button></div>
+            <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-inner">
+                <p>👤 <strong>Passager :</strong> <span id="modal-pseudo" class="text-gray-900 dark:text-white font-bold"></span></p>
+                <p>📅 <strong>Date :</strong> <span id="modal-date" class="text-indigo-600 dark:text-indigo-300 font-bold"></span> à <span id="modal-heure" class="text-indigo-600 dark:text-indigo-300 font-bold"></span></p>
+                <p>📍 <strong>Arrêt :</strong> <span id="modal-arret" class="text-gray-900 dark:text-white"></span></p>
+                <p>💺 <strong>Siège :</strong> <span id="modal-seat" class="text-gray-900 dark:text-white font-bold"></span></p>
+                <p>⚙️ <strong>Options :</strong> <span id="modal-options" class="text-yellow-600 dark:text-yellow-400 font-bold"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let scanner;
+    function startScanner(){const res=document.getElementById('scanResult');document.getElementById('reader').classList.remove('hidden');document.getElementById('startScanBtn').classList.add('hidden');scanner=new Html5Qrcode("reader");scanner.start({facingMode:"environment"},{fps:10,qrbox:250},(txt)=>{scanner.stop();document.getElementById('reader').classList.add('hidden');document.getElementById('startScanBtn').classList.remove('hidden');checkToken(txt);}).catch(err=>{res.classList.remove('hidden');res.innerText="Erreur caméra (HTTPS requis ?)";res.classList.add('bg-red-600','text-white');document.getElementById('reader').classList.add('hidden');document.getElementById('startScanBtn').classList.remove('hidden');});}
+    function checkToken(t){const res=document.getElementById('scanResult');res.classList.remove('hidden','bg-red-600','bg-green-600');res.classList.add('bg-gray-600','text-white');res.innerText="Vérification...";fetch('/api/validate_scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t})}).then(r=>r.json()).then(d=>{if(d.status==='success'){res.classList.replace('bg-gray-600','bg-green-600');res.innerText=d.message;setTimeout(()=>location.reload(),1500);}else{res.classList.replace('bg-gray-600','bg-red-600');res.innerText=d.message;}}).catch(()=>res.innerText="Erreur réseau");}
+    function openEditModal(d,a,r){document.getElementById('modalDateDisplay').innerText=d;document.getElementById('modalDateInput').value=d;document.getElementById('modalAller').value=a;document.getElementById('modalRetour').value=r;document.getElementById('editModal').classList.remove('hidden');}
+    function setNoService(target){if(target==='aller'){document.getElementById('modalAller').value="Pas de service";}else{document.getElementById('modalRetour').value="Pas de service";}}
+    function openRideModal(p, d, h, a, s, o) {
+        document.getElementById('modal-pseudo').innerText = p;
+        document.getElementById('modal-date').innerText = d;
+        document.getElementById('modal-heure').innerText = h;
+        document.getElementById('modal-arret').innerText = a;
+        document.getElementById('modal-seat').innerText = s;
+        document.getElementById('modal-options').innerText = o ? o : "Aucune";
+        document.getElementById('rideDetailsModal').classList.remove('hidden');
+    }
+</script>
+{% endblock %}
