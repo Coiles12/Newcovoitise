@@ -33,7 +33,7 @@ db = SQLAlchemy(app)
 PRONOTE_URL = "https://0560181t.index-education.net/PRONOTE/eleve.html"
 PRONOTE_USER = os.getenv("PRONOTE_USER")
 PRONOTE_MDP = os.getenv("PRONOTE_MDP")
-DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "https://discord.com/api/webhooks/1483780868014342194/aBBCnAedJVuDKu_zU8KlE13J4QdsBC0j8M0Y7JHIzz7CcewZwMeVbFnCDyu-moQjrOxm")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 CACHE_FILE = "cache_edt.json"
 USERS_FILE = "users.json"
