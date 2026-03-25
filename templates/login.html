@@ -5,6 +5,14 @@
         <h2 class="text-3xl font-black text-gray-900 dark:text-white text-center mb-8 tracking-tighter">
             CONNEXION <span class="text-indigo-500">.</span>
         </h2>
+        <div class="mb-6">
+            <p class="text-[11px] uppercase tracking-widest font-bold text-gray-500 dark:text-gray-400 mb-2 text-center">Apparence</p>
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" data-theme="auto" class="theme-btn bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-600">Auto</button>
+                <button type="button" data-theme="light" class="theme-btn bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-600">Clair</button>
+                <button type="button" data-theme="dark" class="theme-btn bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-600">Sombre</button>
+            </div>
+        </div>
 
         {% if error %}
         <div class="bg-red-500/20 border border-red-500 text-red-200 p-3 rounded-xl mb-6 text-sm text-center font-bold animate__animated animate__shakeX">
@@ -54,4 +62,22 @@
         </form>
     </div>
 </div>
+<script>
+    function applyThemeFromLogin(theme) {
+        localStorage.setItem('covoitise_theme', theme);
+        const darkNow = (theme === 'dark') || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', darkNow);
+        document.querySelectorAll('.theme-btn').forEach((btn) => {
+            const active = btn.dataset.theme === theme;
+            btn.classList.toggle('ring-2', active);
+            btn.classList.toggle('ring-indigo-500', active);
+        });
+    }
+
+    const initialTheme = localStorage.getItem('covoitise_theme') || 'auto';
+    applyThemeFromLogin(initialTheme);
+    document.querySelectorAll('.theme-btn').forEach((btn) => {
+        btn.addEventListener('click', () => applyThemeFromLogin(btn.dataset.theme));
+    });
+</script>
 {% endblock %}

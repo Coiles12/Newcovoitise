@@ -53,7 +53,9 @@
         html:not(.dark) .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
     </style>
     <script>
-        const uTheme = "{{ current_user.theme if current_user else 'auto' }}";
+        const serverTheme = "{{ current_user.theme if current_user else '' }}";
+        const savedTheme = localStorage.getItem('covoitise_theme');
+        const uTheme = serverTheme || savedTheme || 'auto';
         const shouldUseDark = (uTheme === 'dark') || (uTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.classList.toggle('dark', shouldUseDark);
     </script>
@@ -116,7 +118,7 @@
                 <form action="/update_settings" method="POST" class="space-y-6">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Apparence</label>
-                        <select name="theme" class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-indigo-500 outline-none">
+                        <select id="themeSelect" name="theme" class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:border-indigo-500 outline-none">
                             <option value="auto" {% if current_user.theme == 'auto' %}selected{% endif %}>📱 Automatique (Appareil)</option>
                             <option value="light" {% if current_user.theme == 'light' %}selected{% endif %}>☀️ Mode Clair</option>
                             <option value="dark" {% if current_user.theme == 'dark' %}selected{% endif %}>🌙 Mode Sombre</option>
@@ -146,6 +148,17 @@
             flashMsg.classList.add('animate__fadeOutUp');
             setTimeout(()=>flashMsg.remove(),500);
         },3500);
+
+        const themeSelect = document.getElementById('themeSelect');
+        if (themeSelect) {
+            localStorage.setItem('covoitise_theme', themeSelect.value);
+            themeSelect.addEventListener('change', () => {
+                const nextTheme = themeSelect.value;
+                localStorage.setItem('covoitise_theme', nextTheme);
+                const darkNow = (nextTheme === 'dark') || (nextTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.classList.toggle('dark', darkNow);
+            });
+        }
     </script>
 </body>
 </html>
