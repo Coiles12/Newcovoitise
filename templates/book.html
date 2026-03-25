@@ -48,7 +48,7 @@
                     <span class="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 p-1 rounded text-xs">3</span> Détails
                 </h3>
                 <div class="space-y-3">
-                    <select name="arret" required class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 outline-none text-sm focus:border-indigo-500 transition shadow-sm">
+                    <select id="arretDesktop" name="arret" required class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 outline-none text-sm focus:border-indigo-500 transition shadow-sm">
                         {% for arret in arrets %}
                         <option value="{{ arret }}" {% if current_user.default_arret == arret %}selected{% endif %}>{{ arret }}</option>
                         {% endfor %}
@@ -127,7 +127,7 @@
                 <span class="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 p-1 rounded text-xs">3</span> Détails
             </h3>
             <div class="space-y-3">
-                <select name="arret" required class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 outline-none text-sm shadow-sm focus:border-indigo-500">
+                <select id="arretMobile" name="arret" required class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-3 rounded-xl border border-gray-200 dark:border-gray-700 outline-none text-sm shadow-sm focus:border-indigo-500">
                     {% for arret in arrets %}
                     <option value="{{ arret }}" {% if current_user.default_arret == arret %}selected{% endif %}>{{ arret }}</option>
                     {% endfor %}
@@ -262,6 +262,17 @@
 
     dInput.addEventListener('change', updateHoraire);
     sInputs.forEach(i => i.addEventListener('change', updateHoraire));
+
+    function syncArretInputs() {
+        const desktop = document.getElementById('arretDesktop');
+        const mobile = document.getElementById('arretMobile');
+        const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+        desktop.disabled = !isDesktop;
+        mobile.disabled = isDesktop;
+    }
+
+    window.addEventListener('resize', syncArretInputs);
+    syncArretInputs();
     updateHoraire();
 </script>
 {% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto animate__animated animate__fadeIn">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl">
+        <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2">📜 Charte d'utilisation</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Rappels pour que les trajets se passent bien pour tout le monde.</p>
+
+        <ul class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+            <li class="flex gap-3">
+                <span class="text-lg">💺</span>
+                <div>
+                    <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Surclassement</strong>
+                    Si la place avant (RF) est libre au départ, un passager arrière peut s'y installer gratuitement (premier arrivé, premier servi).
+                </div>
+            </li>
+            <li class="flex gap-3">
+                <span class="text-lg">🎧</span>
+                <div>
+                    <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">DJ par défaut</strong>
+                    Si personne n'a pris l'option DJ, le passager avant (RF) gère la musique.
+                </div>
+            </li>
+            <li class="flex gap-3">
+                <span class="text-lg">⌚</span>
+                <div>
+                    <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Ponctualité</strong>
+                    La voiture part à l'heure. Si tu es en retard, tu deviens piéton. Pas de remboursement.
+                </div>
+            </li>
+            <li class="flex gap-3">
+                <span class="text-lg">🔔</span>
+                <div>
+                    <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Après la sonnerie</strong>
+                    Départ au plus tard 10 minutes après la sonnerie.
+                </div>
+            </li>
+            <li class="flex gap-3">
+                <span class="text-lg">🍔</span>
+                <div>
+                    <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Propreté</strong>
+                    Pas de nourriture qui fait des miettes ou qui coule. L'eau est tolérée.
+                </div>
+            </li>
+            <li class="flex gap-3">
+                <span class="text-lg">🤝</span>
+                <div>
+                    <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Politesse</strong>
+                    Un "bonjour" et un "merci" font toujours la difference.
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

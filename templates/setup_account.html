@@ -7,49 +7,56 @@
         <p class="text-indigo-200 text-sm mt-1">Avant de monter, petite mise au point.</p>
     </div>
 
-    <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-xl relative">
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl relative transition-colors">
         
-        <form action="/setup-account" method="POST" class="space-y-6">
+        <form action="/setup-account" method="POST" id="setupForm" class="space-y-6">
             
             <div>
-                <h3 class="font-bold text-indigo-400 mb-2 uppercase text-xs tracking-widest pl-1 flex items-center gap-2">
+                <h3 class="font-bold text-indigo-600 dark:text-indigo-400 mb-2 uppercase text-xs tracking-widest pl-1 flex items-center gap-2">
                     📜 Charte du Passager
                 </h3>
                 
-                <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-600 h-56 overflow-y-auto custom-scrollbar shadow-inner">
-                    <ul class="space-y-4 text-sm text-gray-300">
+                <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600 h-56 overflow-y-auto custom-scrollbar shadow-inner">
+                    <ul class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
                         <li class="flex gap-3">
                             <span class="text-lg">💺</span>
                             <div>
-                                <strong class="text-white block text-xs uppercase mb-1">Surclassement</strong>
+                                <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Surclassement</strong>
                                 Si la place avant (RF) est libre au départ, un passager arrière peut s'y installer gratuitement (Premier arrivé, premier servi).
                             </div>
                         </li>
                         <li class="flex gap-3">
                             <span class="text-lg">🎧</span>
                             <div>
-                                <strong class="text-white block text-xs uppercase mb-1">DJ par défaut</strong>
+                                <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">DJ par défaut</strong>
                                 Si personne n'a payé l'option DJ, c'est le passager avant (RF) qui gère la musique.
                             </div>
                         </li>
                         <li class="flex gap-3">
                             <span class="text-lg">⌚</span>
                             <div>
-                                <strong class="text-white block text-xs uppercase mb-1">Ponctualité</strong>
+                                <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Ponctualité</strong>
                                 La voiture part à l'heure. Si tu es en retard, tu deviens piéton. Pas de remboursement.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="text-lg">🔔</span>
+                            <div>
+                                <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Après la sonnerie</strong>
+                                Départ au plus tard 10 minutes après la sonnerie.
                             </div>
                         </li>
                         <li class="flex gap-3">
                             <span class="text-lg">🍔</span>
                             <div>
-                                <strong class="text-white block text-xs uppercase mb-1">Propreté</strong>
+                                <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Propreté</strong>
                                 Interdiction de manger des trucs qui font des miettes ou qui coulent. L'eau est tolérée.
                             </div>
                         </li>
                         <li class="flex gap-3">
                             <span class="text-lg">🤝</span>
                             <div>
-                                <strong class="text-white block text-xs uppercase mb-1">Politesse</strong>
+                                <strong class="text-gray-900 dark:text-white block text-xs uppercase mb-1">Politesse</strong>
                                 Un "Bonjour" et un "Merci" n'ont jamais tué personne.
                             </div>
                         </li>
@@ -57,23 +64,23 @@
                 </div>
             </div>
 
-            <label class="flex items-start gap-3 p-3 bg-gray-700/50 rounded-xl cursor-pointer hover:bg-gray-700 transition border border-transparent hover:border-indigo-500/30 group">
+            <label class="flex items-start gap-3 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition border border-transparent hover:border-indigo-500/30 group">
                 <input type="checkbox" required class="mt-1 w-5 h-5 accent-indigo-500 rounded focus:ring-0 cursor-pointer">
-                <span class="text-xs text-gray-300 group-hover:text-white transition-colors leading-relaxed">
+                <span class="text-xs text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors leading-relaxed">
                     Je jure solennellement que mes intentions sont bonnes et j'accepte ces règles.
                 </span>
             </label>
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Choisis ton mot de passe</label>
-                    <input type="password" name="new_password" placeholder="Nouveau mot de passe secret" required 
-                           class="w-full bg-gray-900 text-white px-4 py-3 rounded-xl border border-gray-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder-gray-600">
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 ml-1">Choisis ton mot de passe</label>
+                    <input type="password" id="newPassword" name="new_password" placeholder="Nouveau mot de passe secret" minlength="4" required 
+                           class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder-gray-500 dark:placeholder-gray-600">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Confirme le mot de passe</label>
-                    <input type="password" name="confirm_password" placeholder="Répète le mot de passe" required 
-                           class="w-full bg-gray-900 text-white px-4 py-3 rounded-xl border border-gray-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder-gray-600">
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 ml-1">Confirme le mot de passe</label>
+                    <input type="password" id="confirmPassword" name="confirm_password" placeholder="Répète le mot de passe" minlength="4" required 
+                           class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder-gray-500 dark:placeholder-gray-600">
                 </div>
             </div>
 
@@ -84,4 +91,17 @@
         </form>
     </div>
 </div>
+<script>
+    const setupForm = document.getElementById('setupForm');
+    if (setupForm) {
+        setupForm.addEventListener('submit', (e) => {
+            const p1 = document.getElementById('newPassword').value;
+            const p2 = document.getElementById('confirmPassword').value;
+            if (p1 !== p2) {
+                e.preventDefault();
+                alert("Les mots de passe ne correspondent pas.");
+            }
+        });
+    }
+</script>
 {% endblock %}

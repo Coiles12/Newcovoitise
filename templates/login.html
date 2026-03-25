@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="flex items-center justify-center min-h-[60vh]">
-    <div class="bg-gray-800/95 p-8 rounded-3xl border border-gray-700 shadow-2xl w-full max-w-md animate__animated animate__fadeIn">
-        <h2 class="text-3xl font-black text-white text-center mb-8 tracking-tighter">
+    <div class="bg-white dark:bg-gray-800/95 p-8 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-2xl w-full max-w-md animate__animated animate__fadeIn transition-colors">
+        <h2 class="text-3xl font-black text-gray-900 dark:text-white text-center mb-8 tracking-tighter">
             CONNEXION <span class="text-indigo-500">.</span>
         </h2>
 
@@ -14,16 +14,16 @@
 
         <form method="POST" action="/login" class="space-y-6">
             <div>
-                <label class="block text-indigo-300 text-xs font-bold uppercase tracking-widest mb-2">Identifiant</label>
+                <label class="block text-indigo-600 dark:text-indigo-300 text-xs font-bold uppercase tracking-widest mb-2">Identifiant</label>
                 <input type="text" name="pseudo" required 
-                       class="w-full bg-gray-900 text-white font-bold p-4 rounded-2xl border border-gray-700 focus:border-indigo-500 outline-none transition placeholder-gray-600"
+                       class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold p-4 rounded-2xl border border-gray-200 dark:border-gray-700 focus:border-indigo-500 outline-none transition placeholder-gray-500 dark:placeholder-gray-600"
                        placeholder="Votre pseudo">
             </div>
 
             <div>
-                <label class="block text-indigo-300 text-xs font-bold uppercase tracking-widest mb-2">Mot de passe</label>
+                <label class="block text-indigo-600 dark:text-indigo-300 text-xs font-bold uppercase tracking-widest mb-2">Mot de passe</label>
                 <input type="password" name="password" required 
-                       class="w-full bg-gray-900 text-white font-bold p-4 rounded-2xl border border-gray-700 focus:border-indigo-500 outline-none transition placeholder-gray-600"
+                       class="w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold p-4 rounded-2xl border border-gray-200 dark:border-gray-700 focus:border-indigo-500 outline-none transition placeholder-gray-500 dark:placeholder-gray-600"
                        placeholder="••••••••">
             </div>
 
@@ -32,24 +32,24 @@
             </button>
         </form>
 
-        <p class="text-center mt-6 text-gray-400 text-sm">
+        <p class="text-center mt-6 text-gray-500 dark:text-gray-400 text-sm">
             Vous n'avez pas de compte ? 
-            <button onclick="document.getElementById('requestModal').classList.remove('hidden')" class="text-indigo-400 font-bold hover:text-white transition hover:underline">
+            <button onclick="document.getElementById('requestModal').classList.remove('hidden')" class="text-indigo-600 dark:text-indigo-400 font-bold hover:text-indigo-800 dark:hover:text-white transition hover:underline">
                 Demandez au conducteur
             </button>
         </p>
     </div>
 </div>
 
-<div id="requestModal" class="hidden fixed inset-0 bg-black/90 z-[70] flex items-center justify-center p-4">
-    <div class="bg-gray-800 w-full max-w-sm rounded-2xl p-6 border border-gray-600 shadow-2xl animate__animated animate__zoomIn">
+<div id="requestModal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/90 z-[70] flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-600 shadow-2xl animate__animated animate__zoomIn transition-colors">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-white text-lg">🚀 Rejoindre la navette</h3>
-            <button onclick="document.getElementById('requestModal').classList.add('hidden')" class="text-gray-400 hover:text-white">✕</button>
+            <h3 class="font-bold text-gray-900 dark:text-white text-lg">🚀 Rejoindre la navette</h3>
+            <button onclick="document.getElementById('requestModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">✕</button>
         </div>
-        <p class="text-gray-400 text-sm mb-4">Entre ton prénom ci-dessous. Le conducteur recevra une notification pour créer ton compte.</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">Entre ton prénom ci-dessous. Le conducteur recevra une notification pour créer ton compte.</p>
         <form action="/request_account" method="POST" class="space-y-4">
-            <input type="text" name="pseudo" placeholder="Ton Prénom" required class="w-full bg-gray-900 rounded-xl p-3 text-white text-sm border border-gray-700 focus:border-indigo-500 outline-none font-bold">
+            <input type="text" name="pseudo" placeholder="Ton Prénom" required class="w-full bg-gray-50 dark:bg-gray-900 rounded-xl p-3 text-gray-900 dark:text-white text-sm border border-gray-200 dark:border-gray-700 focus:border-indigo-500 outline-none font-bold">
             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold text-white transition">Envoyer la demande 📨</button>
         </form>
     </div>

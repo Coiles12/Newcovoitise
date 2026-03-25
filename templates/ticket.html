@@ -7,19 +7,19 @@
         <img src="data:image/png;base64,{{ qr_code }}" class="w-64 h-64">
     </div>
 
-    <div class="bg-gray-800 p-6 rounded-2xl text-left border border-gray-700 shadow-lg">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl text-left border border-gray-200 dark:border-gray-700 shadow-lg transition-colors">
         <div class="flex justify-between items-end mb-4">
             <div>
-                <p class="text-sm text-gray-400">{{ ride.type_trajet }} du</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ ride.type_trajet }} du</p>
                 <p class="text-xl font-bold text-indigo-300">{{ ride.jour_str }}</p>
             </div>
             <div class="text-right">
-                <p class="text-sm text-gray-400">Départ à</p>
-                <p class="text-4xl font-black text-white">{{ ride.heure_trajet }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Départ à</p>
+                <p class="text-4xl font-black text-gray-900 dark:text-white">{{ ride.heure_trajet }}</p>
             </div>
         </div>
-        <hr class="border-gray-600 mb-4">
-        <div class="space-y-2 text-gray-300">
+        <hr class="border-gray-300 dark:border-gray-600 mb-4">
+        <div class="space-y-2 text-gray-700 dark:text-gray-300">
             <p>🚗 <strong>Passager :</strong> {{ ride.pseudo_passager }}</p>
             <p>💺 <strong>Siège :</strong> {{ ride.seat }}</p>
             <p>📍 <strong>Point :</strong> {{ ride.nom_arret }}</p>
@@ -28,6 +28,6 @@
             {% endif %}
         </div>
     </div>
-    <a href="/dashboard" class="block mt-8 bg-gray-700 py-4 rounded-xl font-bold hover:bg-gray-600 transition">Retour Accueil</a>
+    <a href="/dashboard" class="block mt-8 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white py-4 rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition">Retour Accueil</a>
 </div>
 {% endblock %}

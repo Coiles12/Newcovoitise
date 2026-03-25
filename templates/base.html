@@ -54,28 +54,27 @@
     </style>
     <script>
         const uTheme = "{{ current_user.theme if current_user else 'auto' }}";
-        if (uTheme === 'dark' || (uTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
+        const shouldUseDark = (uTheme === 'dark') || (uTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', shouldUseDark);
     </script>
 </head>
 <body class="text-gray-800 dark:text-white font-sans antialiased min-h-screen selection:bg-indigo-500 selection:text-white transition-colors duration-300">
 
     <div class="w-full max-w-md md:max-w-4xl lg:max-w-6xl mx-auto min-h-screen relative shadow-2xl md:border-x border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 transition-colors duration-300">
 
-        <div class="glass p-4 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 animate__animated animate__slideInDown transition-colors duration-300">
+        <div class="glass p-3 sm:p-4 flex justify-between items-center gap-2 sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 animate__animated animate__slideInDown transition-colors duration-300">
 
-            <a href="{{ url_for('dashboard') if current_user else '/' }}" class="group relative flex items-center gap-3 px-3 py-2 rounded-2xl border border-gray-200 dark:border-indigo-500/30 bg-white dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 shadow-sm dark:shadow-[0_0_15px_rgba(79,70,229,0.15)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(79,70,229,0.3)]">
+            <a href="{{ url_for('dashboard') if current_user else '/' }}" class="group relative flex min-w-0 items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-2xl border border-gray-200 dark:border-indigo-500/30 bg-white dark:bg-gray-900/50 hover:border-indigo-400 dark:hover:border-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 shadow-sm dark:shadow-[0_0_15px_rgba(79,70,229,0.15)] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(79,70,229,0.3)]">
                 <span class="text-2xl bg-clip-text text-transparent bg-gradient-to-tr from-indigo-400 to-purple-400 drop-shadow-md pb-1">
                     🚕
                 </span>
-                <h1 class="font-black text-xl tracking-wide leading-none text-gray-900 dark:text-white transition-colors">
+                <h1 class="font-black text-lg sm:text-xl tracking-wide leading-none text-gray-900 dark:text-white transition-colors whitespace-nowrap">
                     COVOIT<span class="text-indigo-400">ISE</span>
                 </h1>
             </a>
             {% if current_user %}
-            <div class="flex items-center gap-3">
-                <div class="bg-gray-100 dark:bg-gray-800/80 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 flex items-center gap-2 shadow-inner transition-colors">
+            <div class="flex shrink-0 items-center gap-2">
+                <div class="bg-gray-100 dark:bg-gray-800/80 px-2.5 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 flex items-center gap-1.5 shadow-inner transition-colors">
                     <span class="text-yellow-500 dark:text-yellow-400 font-bold text-sm">{{ current_user.credits }}</span><span class="text-xs">🪙</span>
                 </div>
                 <button onclick="document.getElementById('globalSettingsModal').classList.remove('hidden')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 p-2 rounded-xl transition-all border border-gray-200 dark:border-gray-700">
@@ -92,15 +91,20 @@
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <div id="flashMessage" class="fixed top-24 left-4 right-4 z-[60] mx-auto bg-gray-800 text-white p-4 rounded-xl border-l-4 border-indigo-500 shadow-2xl flex items-center justify-between gap-3 animate__animated animate__fadeInDown">
-                    <span class="font-bold text-sm flex-1">{{ messages[0] }}</span><button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white">✕</button>
+                <div id="flashMessage" class="fixed top-24 left-4 right-4 z-[60] mx-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-4 rounded-xl border-l-4 border-indigo-500 border border-gray-200 dark:border-gray-700 shadow-2xl flex items-center justify-between gap-3 animate__animated animate__fadeInDown">
+                    <span class="font-bold text-sm flex-1">{{ messages[0] }}</span><button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">✕</button>
                 </div>
             {% endif %}
         {% endwith %}
 
-        <div class="p-5 pb-24">
+        <div class="p-5 pb-10">
             {% block content %}{% endblock %}
         </div>
+        <footer class="px-5 pb-6 text-center">
+            <a href="/charte" class="text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition">
+                📜 Charte d'utilisation
+            </a>
+        </footer>
         
         {% if current_user %}
         <div id="globalSettingsModal" class="hidden fixed inset-0 bg-black/40 dark:bg-black/80 z-[80] flex items-center justify-center p-4 backdrop-blur-sm">

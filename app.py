@@ -51,10 +51,18 @@ DERNIERE_MODIF_CACHE = 0
 LAST_DISCORD_ALERT_DATE = None
 
 def envoyer_notification_discord(message):
-    """Envoie un message via Webhook Discord si l'URL est configurée."""
+    """Envoie un embed Discord simple (description)."""
     if DISCORD_WEBHOOK_URL:
         try:
-            requests.post(DISCORD_WEBHOOK_URL, json={"content": message})
+            payload = {
+                "embeds": [
+                    {
+                        "description": message,
+                        "color": 5793266
+                    }
+                ]
+            }
+            requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=5)
         except Exception as e:
             print(f"Erreur Discord: {e}")
 
@@ -886,6 +894,10 @@ def history():
     historique = History.query.filter_by(user_id=user.id).order_by(History.date_trajet.desc()).all()
 
     return render_template('history.html', user=user, history=historique)
+
+@app.route('/charte')
+def charte():
+    return render_template('charte.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
